@@ -178,7 +178,6 @@ bool isAuthenticated() {
   }
   return false;
 }
-
 void handleLogin() {
   String msg;
   if (server.hasHeader("Cookie")) {
@@ -198,20 +197,39 @@ void handleLogin() {
       alert();
       return;
     }
-    msg = "<font color=red><b>Wrong User ID/Password! try again.</b></font>";
+    msg = "<p class='error'>Wrong User ID/Password! try again.</p>";
   }
-  String content = "<html><title>Login</title><body><form action='/login' method='POST'>";
-  content += "<center><table border=4><tr><td>";
-  content += "<center><h3><font color=\"#009900\"><b>ZPHS Cherlopalli</font></h3>";
-  content += "<h3>This is login page to </h3>";
-  content += "<font color=navy><h2>IoT based Smart Notice Board</font></h2><br></center>";
-  content += "<center><table border=3><tr><td>";
-  content += "<center><br><b>User ID:</b><input type='text' name='USERNAME' placeholder='User ID'><br><br>";
-  content += "<b>Password:</b><input type='password' name='PASSWORD' placeholder='Password'><br><br>";
-  content += "<input type='submit' name='SUBMIT' value='Submit'><br><br></form>" + msg + "<br></center></html>";
-  content += "</td></tr></table></td></tr></table></center></body></html>";
+  String content = R"(
+    <html>
+    <head>
+      <title>Login</title>
+      <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: auto; padding: 20px; }
+        .error { color: red; }
+        @media (max-width: 600px) {
+          .container { padding: 10px; }
+        }
+      </style>
+    </head>
+    <body>
+      <div class='container'>
+        <h1>Login</h1>
+        <form action='/login' method='POST'>
+          <label for='username'>User ID:</label>
+          <input type='text' id='username' name='USERNAME' placeholder='User ID' required><br><br>
+          <label for='password'>Password:</label>
+          <input type='password' id='password' name='PASSWORD' placeholder='Password' required><br><br>
+          <input type='submit' value='Submit'>
+        </form>
+        <p class='error'>" + msg + "</p>
+      </div>
+    </body>
+    </html>
+  )";
   server.send(200, "text/html", content);
 }
+
 
 void handleRoot() {
   if (!isAuthenticated()) {
@@ -219,24 +237,45 @@ void handleRoot() {
     server.sendContent(header);
     return;
   }
-
-  String content = "<html><head><title>ZPHS Cherlopalli</title></head>";
-  content += "<center><header><table border=4><tr><td>";
-  content += "<font face= \"bahamas\" color = \"#cc0066\" size=\"6\">ZP High School CHERLOPALLI</font><br>";
-  content += "<font face=\"bookman old\" color=\"008000\" size=\"5\">Settur(M), Anantapuram(D)</font><br>";
-  content += "<font face= \"times new roman\" color = \"151b54\" size=\"5.5\">";
-  content += "</center></header></td></tr><tr><td colspan=3>";
-  content += "<h1><center><font color = \"navy\">IoT based Smart Notice Board</font></h1>";
-  content += "<tr><td colspan=2>";
-  content += "<body><form action='/display' method='POST'>";
-  content += "<center><b>Enter message to be displayed</b><br><textarea type='text' name='message'cols='20' rows='4'></textarea><br>";
-  content += "<input type='submit' name='SUBMIT' value='Submit'></form><br>";
-  content += "<form action='/clear'><input type='submit' name='CLEAR' value='Clear Screen'></form>";
-  content += "<form action='/history'><input type='submit' name='HISTORY' value='Show History'></form>";
-  content += "<form action='/wifi'><input type='submit' name='WIFI' value='Configure WiFi'></form>";
-  content += "</center></body></html>";
+  String content = R"(
+    <html>
+    <head>
+      <title>Smart Notice Board</title>
+      <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        .container { max-width: 800px; margin: auto; padding: 20px; }
+        h1 { color: navy; }
+        form { margin-bottom: 20px; }
+        textarea { width: 100%; box-sizing: border-box; }
+        @media (max-width: 600px) {
+          .container { padding: 10px; }
+        }
+      </style>
+    </head>
+    <body>
+      <div class='container'>
+        <h1>IoT based Smart Notice Board</h1>
+        <form action='/display' method='POST'>
+          <label for='message'>Enter message to be displayed:</label><br>
+          <textarea id='message' name='message' rows='4' required></textarea><br><br>
+          <input type='submit' value='Submit'>
+        </form>
+        <form action='/clear'>
+          <input type='submit' value='Clear Screen'>
+        </form>
+        <form action='/history'>
+          <input type='submit' value='Show History'>
+        </form>
+        <form action='/wifi'>
+          <input type='submit' value='Configure WiFi'>
+        </form>
+      </div>
+    </body>
+    </html>
+  )";
   server.send(200, "text/html", content);
 }
+
 
 void showHistory() {
   if (!isAuthenticated()) {
@@ -290,14 +329,32 @@ void handleWiFiConfig() {
     server.sendContent(header);
     return;
   }
-  String content = "<html><head><title>WiFi Configuration</title></head><body>";
-  content += "<h1>Configure WiFi</h1>";
-  content += "<form action='/setwifi' method='POST'>";
-  content += "SSID: <input type='text' name='ssid'><br>";
-  content += "Password: <input type='password' name='password'><br>";
-  content += "<input type='submit' value='Save'>";
-  content += "</form>";
-  content += "</body></html>";
+  String content = R"(
+    <html>
+    <head>
+      <title>WiFi Configuration</title>
+      <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: auto; padding: 20px; }
+        @media (max-width: 600px) {
+          .container { padding: 10px; }
+        }
+      </style>
+    </head>
+    <body>
+      <div class='container'>
+        <h1>Configure WiFi</h1>
+        <form action='/setwifi' method='POST'>
+          <label for='ssid'>SSID:</label>
+          <input type='text' id='ssid' name='ssid' required><br><br>
+          <label for='password'>Password:</label>
+          <input type='password' id='password' name='password' required><br><br>
+          <input type='submit' value='Save'>
+        </form>
+      </div>
+    </body>
+    </html>
+  )";
   server.send(200, "text/html", content);
 }
 
